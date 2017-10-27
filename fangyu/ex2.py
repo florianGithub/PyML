@@ -34,3 +34,14 @@ def npnearest(u,X,Y, distance=npdistance):
 	#print(D.shape)
 	min_idx = np.argmin(D)
 	return Y[min_idx]
+
+def npbatch(U, X, Y):
+	# perform pairwise distance computation(rows of U to rows of X)
+	D = scipy.spatial.distance.cdist(U, X)
+	# for every u in U, find the nearest neighbor(i.e. the one w/ the smallest dist)
+	idx_list = D.argmin(axis=1)	#'axis=1' mean search by row!
+	#D[np.arange(len(D)), inc.squeeze()]
+	return [Y[i] for i in idx_list]
+
+
+
