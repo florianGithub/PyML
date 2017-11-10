@@ -16,30 +16,51 @@ S1 = utils.S1
 S2 = utils.S2
 S3 = utils.S3
 
-def logp(X,m,S):
+#This function is numerically instable for multiple reasons. 
+# 1 The product of many probabilities, 
+# 2 the inversion of a large covariance matrix, 
+# 3 and the computation of its determinant, 
+# are all potential causes for overflow. 
+
+def logp_opt(X,m,S):
     
     # Find the number of dimensions from the data vector
     d = X.shape[1]
     
-    # Invert the covariance matrix
-    Sinv = np.linalg.inv(S)
+    # prob2 = inverting large matrix. 
+    # seems to work fine here. 
+    # but det(Sinv) approx zero -> not invertible.
+    detS = np.linalg.det( S )
+    #Sinv = np.linalg.inv(S)
+    L = np.linalg.cholesky(S)
+    LT = np.transpose( L )
+    L_inv = np.linalg.inv(L)
+    LT_inv = np.linalg.inv(LT)
+    detS = np.linalg.det( L ) * np.linalg.det( LT )
     
     # Compute the quadratic terms for all data points
-    Q = -0.5*(np.dot(X-m,Sinv)*(X-m)).sum(axis=1)
+    vecDev = X-m
+    vecDevMapped1 = np.dot( vecDev , LT_inv )
+    vecDevMapped2 = np.dot( vecDevMapped1 , L_inv )
+    prodComponents_i1 = vecDevMapped2 * vecDev
+    scalProd = prodComponents_i1.sum(axis=1)
+    Q = -0.5*scalProd
     
     # Raise them quadratic terms to the exponential
     Q = np.exp(Q)
-    
+
+    # prob3 = computation of det.    
     # Divide by the terms in the denominator
-    P = Q / np.sqrt((2*np.pi)**d * np.linalg.det(S))
+    P = Q / np.sqrt((2*np.pi)**d * detS )
     
+    # prob1 -> solution = replace prod by sum.
     # Take the product of the probability of each data points
-    Pprod = np.prod(P)
+    lnP = np.sum( np.log(P) )
     
     # Return the log-probability
-    return np.log(Pprod)
+    return lnP
 
 
-print(logp(utils.X1,utils.m1,utils.S1))
-print(logp(utils.X2,utils.m2,utils.S2))
-print(logp(utils.X3,utils.m3,utils.S3))
+print(logp_opt(X1,m1,S1))
+print(logp_opt(X2,m2,S2))
+print(logp_opt(X3,m3,S3))

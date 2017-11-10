@@ -5,3 +5,7 @@ sheet3_20171103_8pm/.ipynb_checkpoints/
 sheet4_20171110_8pm/.ipynb_checkpoints/*
 */.ipynb_checkpoints/*
 *.pyc
+*.aux
+*.log
+*.synctex.gz
+*.out
