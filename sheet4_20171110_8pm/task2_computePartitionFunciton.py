@@ -14,13 +14,13 @@ def getlogZ(w):
         Z += np.exp(np.dot(x,w))
     return np.log(Z)
 
-print('%11.4f'%getlogZ(w_small))
-print('%11.4f'%getlogZ(w_medium))
-print('%11.4f'%getlogZ(w_big))
-
-print ''
-print '_________________'
-print ''
+#print('%11.4f'%getlogZ(w_small))
+#print('%11.4f'%getlogZ(w_medium))
+#print('%11.4f'%getlogZ(w_big))
+#
+#print ''
+#print '_________________'
+#print ''
 
 def getlogZ_opt( w ):
     
@@ -36,7 +36,7 @@ def getlogZ_opt( w ):
      
     Zrest = 0.
     for x in itertools.product([-1, 1], repeat=10):
-        Zrest += np.exp (np.dot(x,w)-offsetForExpArgs )
+        Zrest += np.exp ( np.dot(x,w)-offsetForExpArgs )
     
     lnZ = offsetForExpArgs + np.log(Zrest)
     
@@ -47,7 +47,38 @@ def getlogZ_opt( w ):
         
 #    return lnZ
 
-print('%11.4f'%getlogZ_opt(w_small))
-print('%11.4f'%getlogZ_opt(w_medium))
-print('%11.4f'%getlogZ_opt(w_big))
+#print('%11.4f'%getlogZ_opt(w_small))
+#print('%11.4f'%getlogZ_opt(w_medium))
+#print('%11.4f'%getlogZ_opt(w_big))
     
+
+### Part b ###
+
+
+#For the model with parameter utils.w_big, 
+#evaluate the log-probability of the binary vectors 
+#contained in the list itertools.product([-1, 1], repeat=10), 
+#and return the indices (starting from 0) of those 
+#that have probability greater or equal to 0.001.
+
+lnZ_wBig = getlogZ_opt( w_big )
+    
+def logP(x):
+    logP = - lnZ_wBig + np.dot(x,w_big) 
+    return logP
+
+def getIndicesOfProbsLargerOrEqualThan( probLowerBound ):        
+    iBinVec = 0
+    iLargerOrEqual = []
+    for binVec in itertools.product([-1, 1], repeat=10):
+        #print binVec,iBinVec
+        logPBinVec = logP(binVec)
+        pBinVec = np.exp( logPBinVec )
+        if( pBinVec >= probLowerBound ):
+            iLargerOrEqual.append( iBinVec )
+        iBinVec += 1
+
+    return iLargerOrEqual
+
+print getIndicesOfProbsLargerOrEqualThan( 1e-3 )
+   
